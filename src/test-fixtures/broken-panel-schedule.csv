@@ -1,0 +1,8 @@
+assetName,type,location,status,parentAssetName,lastInspectionDate,notes
+,panel,Basement corridor,ok,,2024-05-10,Copied from legacy PDF page 3
+Generator Tie,xfmr,Yard enclosure,ok,,2024-05-10,Type abbreviation from old spreadsheet
+Panel C,panel,,needs-review,,2024-05-10,Location column was blank in the PDF
+Lighting Contactor,other,Mezzanine,criticl,,2024-05-10,Status typo from hand entry
+  Panel D  ,  PANEL  ,Electrical room 3,  OK  ,,2024-05-10,Extra whitespace and caps from copy/paste
+Panel D,panel,Electrical room 3,ok,,2024-05-10,Duplicate row pasted twice
+Spare Breaker,breaker,Panel C,ok,,05/10/2024,US-style date from the old sheet

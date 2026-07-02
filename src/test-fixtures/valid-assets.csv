@@ -1,0 +1,6 @@
+assetName,type,location,status,parentAssetName,lastInspectionDate,notes
+Roof Transformer,transformer,Roof northeast corner,ok,,2025-10-01,
+Distribution Switchgear,switchgear,Electrical room 2,ok,Roof Transformer,2025-10-01,
+Panel B,panel,Electrical room 2,ok,Distribution Switchgear,2025-10-01,Feeds second floor
+Breaker 4,breaker,Panel B,ok,Panel B,2025-10-01,
+Tenant Meter,meter,Electrical room 2,ok,,2025-10-01,

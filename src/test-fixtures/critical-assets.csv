@@ -1,0 +1,4 @@
+assetName,type,location,status,parentAssetName,lastInspectionDate,notes
+Service Entrance Switchgear,switchgear,Main electrical room,critical,,2023-01-15,"Thermal scan showed hot spot, phase B"
+Feeder Breaker 2,breaker,Service Entrance Switchgear,needs-review,Service Entrance Switchgear,2023-01-15,Torque check due
+Backup Meter,meter,Main electrical room,ok,,2025-09-30,
