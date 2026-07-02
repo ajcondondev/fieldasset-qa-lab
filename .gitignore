@@ -1,0 +1,18 @@
+# Dependencies / build output
+node_modules/
+dist/
+
+# Test artifacts
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+coverage/
+
+# Local planning material (not part of the demo)
+phases/
+fieldasset_qa_lab_ai_agent_build_brief_ai_qa_emphasis.md
+
+# Editor / OS
+.DS_Store
+*.local
