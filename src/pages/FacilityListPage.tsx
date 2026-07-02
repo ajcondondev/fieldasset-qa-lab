@@ -46,6 +46,17 @@ export function FacilityListPage() {
         </button>
       </div>
 
+      <aside className="tour-banner" data-testid="demo-tour">
+        <div>
+          <strong>Reviewing this demo?</strong> Open a facility, load the{" "}
+          <code>broken-panel-schedule.csv</code> sample, and click <em>Validate and import</em> — you'll
+          see row-level diagnostics, the support panel, and the AI-reply review gate in under two minutes.
+        </div>
+        <Link className="btn btn-secondary" to="/facility/fac-granite">
+          Start the 2-minute tour
+        </Link>
+      </aside>
+
       {showForm && (
         <form className="card form-card" onSubmit={handleCreate} aria-label="New facility">
           <h2>New facility</h2>

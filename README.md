@@ -6,6 +6,10 @@ A small, working demo of **how I would build QA from the ground up in an AI-enab
 
 This is a portfolio project inspired by field-data and asset-management workflows in general. It is not affiliated with any company, and all data is fictional.
 
+![Row-level import diagnostics for a broken customer CSV](docs/images/import-diagnostics.png)
+
+*The core demo: a legacy panel schedule with seven distinct failure modes — every row either imports or explains itself. Errors block; warnings don't; typos get suggestions.*
+
 ## What the app simulates
 
 A facility asset system used by an electrical field/service team:
@@ -17,6 +21,15 @@ A facility asset system used by an electrical field/service team:
 5. **Report preview** — critical/needs-review/missing-inspection rollup, copy as text or download as JSON. Archived facilities are excluded.
 
 Three committed CSV fixtures drive the demo (`src/test-fixtures/`): a clean file, a **broken customer-like panel schedule** (missing fields, `xfmr` type abbreviation, `criticl` typo, duplicates, stray whitespace, US-style date), and a critical-assets file. The same fixtures are loaded by the UI's sample buttons, the unit tests, and the Playwright suite — one source of truth for expected behavior.
+
+## Demo walkthrough (2 minutes)
+
+1. `npm install && npm run dev`, open http://localhost:5173.
+2. Open **Granite Street Warehouse** → scroll to **Import assets from CSV**.
+3. Click **Load sample file → broken-panel-schedule.csv**, then **Validate and import**. This is a minimized "customer file": 7 rows copied from a legacy PDF. Read the summary — `2 imported, 5 rejected, 1 warning` — then the rejected-rows table: a missing name, the `xfmr` abbreviation, a missing location, the `criticl` typo (with a "did you mean" hint), and a duplicated row. Note that the padded ` PANEL ` row was salvaged by normalization and the US-format date imported *with a warning* instead of failing — errors and warnings are deliberately different things.
+4. In **Support diagnostics**, read the suggested next actions, then click **Draft customer reply**. Try to copy it — you can't until you check *"I reviewed this draft"*. That checkbox is the AI guardrail, and it has its own Playwright regression test.
+5. Click **Generate report**: the critical switchgear you just imported is highlighted. (Open the archived *Elm Street Manufacturing* facility to see that archived facilities refuse to generate customer-facing reports.)
+6. The whole loop is documented: this exact broken file is the customer ticket in [docs/support-reproduction.md](docs/support-reproduction.md), the handoff in [docs/bug-report-example.md](docs/bug-report-example.md), and pinned regression tests in both suites.
 
 ## How I would build QA from the ground up
 
@@ -59,6 +72,8 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
+No backend, no API keys, no configuration — data persists to localStorage, and **Reset demo data** (top right) restores the seed. Pushing to GitHub auto-publishes a live demo via `.github/workflows/deploy.yml` (enable **Settings → Pages → Source: GitHub Actions** once).
+
 ## How to run tests
 
 ```bash
@@ -79,6 +94,15 @@ CI runs both suites on every push (`.github/workflows/ci.yml`).
 | [docs/bug-report-example.md](docs/bug-report-example.md) | Engineering handoff quality |
 | [docs/release-checklist.md](docs/release-checklist.md) | What must pass before shipping |
 | [docs/traceability.md](docs/traceability.md) | Stories → risks → manual checks → automated tests |
+
+## What this demonstrates (QA + Support Engineer)
+
+- **QA ownership from day one** — acceptance criteria and a risk map came before the tests; [docs/traceability.md](docs/traceability.md) proves coverage was built systematically, and honestly lists the gaps.
+- **Support engineering instincts** — row-level diagnostics with plain-language reasons, suggested next actions, and a reviewed customer reply. The support→fixture→regression loop is walked end-to-end in [docs/support-reproduction.md](docs/support-reproduction.md).
+- **Regression thinking** — a customer's broken file became a committed fixture whose exact outcome (7 rows → 2 imported, 5 rejected, 1 warning) is pinned by both unit and e2e tests. It can never drift silently.
+- **Deterministic automation** — pure parser, injected clock, committed fixtures, role-based locators, zero sleeps. 26 unit + 14 e2e tests, all green in CI.
+- **AI with guardrails, practiced not preached** — the app's AI-assisted reply drafter is gated behind human review (and that gate is itself regression-tested); the repo was built AI-assisted under the same rules it documents.
+- **Clear communication** — bug report, release checklist, and support docs written for the people who actually read them: engineers, support, and customers.
 
 ## What I would add next
 
