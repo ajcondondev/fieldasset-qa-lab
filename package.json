@@ -1,7 +1,9 @@
 {
   "name": "fieldasset-qa-lab",
+  "description": "Portfolio demo: building QA from the ground up in an AI-enabled world — messy field CSV to trusted asset records, with row-level diagnostics, deterministic tests, and human-reviewed AI drafts",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
