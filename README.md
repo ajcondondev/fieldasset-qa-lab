@@ -2,116 +2,127 @@
 
 [![CI](https://github.com/ajcondondev/fieldasset-qa-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/ajcondondev/fieldasset-qa-lab/actions/workflows/ci.yml)
 
-**Live demo: [ajcondondev.github.io/fieldasset-qa-lab](https://ajcondondev.github.io/fieldasset-qa-lab/)** — nothing to install; follow the [2-minute walkthrough](#demo-walkthrough-2-minutes).
+**Live demo: [ajcondondev.github.io/fieldasset-qa-lab](https://ajcondondev.github.io/fieldasset-qa-lab/)**. Nothing to install. The [2-minute walkthrough](#demo-walkthrough-2-minutes) below tells you what to click.
 
-A small, working demo of **how I would build QA from the ground up in an AI-enabled world** — wrapped around a realistic field-data workflow: messy CSV from a legacy panel schedule goes in, structured electrical asset records with row-level diagnostics and a report come out.
+This is a small working app that shows how I would build QA from the ground up in an AI-enabled world. The scenario is based on electrical field data: a customer pastes a messy spreadsheet, and the app either imports each row or explains exactly why it failed.
 
-> **Point of view:** I use AI for speed — test design, edge-case discovery, fixture variation, log summarization, and documentation drafts. But acceptance criteria, deterministic regression tests, committed fixtures, and human release judgment stay the source of truth. AI drafts; humans decide.
+```mermaid
+flowchart LR
+    A["Messy field CSV<br/>(legacy spreadsheets, old PDFs)"] --> B["Validation engine"]
+    B -->|good rows| C["Structured asset records"]
+    B -->|bad rows| D["Row-level diagnostics<br/>(row, field, plain reason)"]
+    C --> E["Facility report<br/>(critical assets highlighted)"]
+    D --> F["Support workflow<br/>(next actions, reviewed AI reply)"]
+    D --> G["Committed fixtures<br/>= regression tests"]
+```
 
-This is a portfolio project inspired by field-data and asset-management workflows in general. It is not affiliated with any company, and all data is fictional.
+My approach in one sentence:
+
+> Use AI for speed: test ideas, edge cases, test data, and first drafts. Keep acceptance criteria, deterministic tests, and human judgment as the source of truth. AI drafts, humans decide.
+
+This is a portfolio project. It is not affiliated with any company, and all the data is fictional.
 
 ![Row-level import diagnostics for a broken customer CSV](docs/images/import-diagnostics.png)
 
-*The core demo: a legacy panel schedule with seven distinct failure modes — every row either imports or explains itself. Errors block; warnings don't; typos get suggestions.*
+*The core of the demo: a legacy panel schedule with seven different problems. Every row either imports or explains itself. Errors block the row, warnings don't, and typos get a suggestion.*
 
-## What the app simulates
+## What the app does
 
-A facility asset system used by an electrical field/service team:
+1. **Facility list.** Seeded facilities with status and critical-asset counts.
+2. **Facility detail.** Asset table with inline status editing.
+3. **CSV import.** Paste rows copied from a spreadsheet or an old PDF. Valid rows import. Invalid rows are listed with the row number, the field, and a reason written in plain language.
+4. **Support diagnostics.** The last import's source, counts, suggested next actions, and an AI-assisted customer reply that cannot be copied until a human marks it reviewed.
+5. **Report preview.** Critical and needs-review assets called out, missing inspection dates flagged, copy as text or download as JSON. Archived facilities never produce a report.
 
-1. **Facility list** — seeded facilities with status and critical-asset counts.
-2. **Facility detail** — asset table with inline status editing and history.
-3. **CSV import** — paste rows copied from a spreadsheet or legacy PDF. Valid rows import; invalid rows are rejected with the row number, field, and a plain-language reason (including "did you mean…?" hints for typos).
-4. **Support diagnostics panel** — last import's source, counts, issues, suggested next actions, and an **AI-assisted customer reply draft** that cannot be copied until a human marks it reviewed.
-5. **Report preview** — critical/needs-review/missing-inspection rollup, copy as text or download as JSON. Archived facilities are excluded.
-
-Three committed CSV fixtures drive the demo (`src/test-fixtures/`): a clean file, a **broken customer-like panel schedule** (missing fields, `xfmr` type abbreviation, `criticl` typo, duplicates, stray whitespace, US-style date), and a critical-assets file. The same fixtures are loaded by the UI's sample buttons, the unit tests, and the Playwright suite — one source of truth for expected behavior.
+Three CSV files in `src/test-fixtures/` drive everything: a clean file, a broken customer-like file, and a critical-assets file. The same files power the sample buttons in the UI, the unit tests, and the Playwright tests. One source of truth for what "correct" means.
 
 ## Demo walkthrough (2 minutes)
 
-1. `npm install && npm run dev`, open http://localhost:5173.
-2. Open **Granite Street Warehouse** → scroll to **Import assets from CSV**.
-3. Click **Load sample file → broken-panel-schedule.csv**, then **Validate and import**. This is a minimized "customer file": 7 rows copied from a legacy PDF. Read the summary — `2 imported, 5 rejected, 1 warning` — then the rejected-rows table: a missing name, the `xfmr` abbreviation, a missing location, the `criticl` typo (with a "did you mean" hint), and a duplicated row. Note that the padded ` PANEL ` row was salvaged by normalization and the US-format date imported *with a warning* instead of failing — errors and warnings are deliberately different things.
-4. In **Support diagnostics**, read the suggested next actions, then click **Draft customer reply**. Try to copy it — you can't until you check *"I reviewed this draft"*. That checkbox is the AI guardrail, and it has its own Playwright regression test.
-5. Click **Generate report**: the critical switchgear you just imported is highlighted. (Open the archived *Elm Street Manufacturing* facility to see that archived facilities refuse to generate customer-facing reports.)
-6. The whole loop is documented: this exact broken file is the customer ticket in [docs/support-reproduction.md](docs/support-reproduction.md), the handoff in [docs/bug-report-example.md](docs/bug-report-example.md), and pinned regression tests in both suites.
+1. Open the [live demo](https://ajcondondev.github.io/fieldasset-qa-lab/) (or run it locally, below).
+2. Open **Granite Street Warehouse** and scroll to **Import assets from CSV**.
+3. Click **Load sample file: broken-panel-schedule.csv**, then **Validate and import**.
+4. Read the result: `7 rows, 2 imported, 5 rejected, 1 warning`. The rejected list shows a missing name, an unknown type (`xfmr`), a missing location, a typo (`criticl`, with a "did you mean critical?" hint), and a duplicated row. Note that the row with extra whitespace and capital letters was cleaned up and imported, and the US-format date imported with a warning instead of failing.
+5. In **Support diagnostics**, click **Draft customer reply**. Try to copy it. You can't until you check "I reviewed this draft". That checkbox is the AI guardrail, and it has its own regression test.
+6. Click **Generate report**. The critical switchgear you just imported is highlighted.
 
-## How I would build QA from the ground up
+The broken file in step 3 is also the customer ticket in [docs/support-reproduction.md](docs/support-reproduction.md), which follows it from support report to root cause to the regression tests that now pin its behavior.
 
-Quality is designed in from the first user story, not added after features are done:
+## How I build QA from the ground up
+
+Quality gets designed in with the first user story, not added after the features are done:
 
 ```
-user story → acceptance criteria → risk analysis → manual charter
-→ deterministic automated test → support reproduction path
-→ bug report → regression coverage → release confidence
+user story → acceptance criteria → risk analysis → manual test charter
+→ automated test → support reproduction path → bug report
+→ regression coverage → release decision
 ```
 
-Concretely, in this repo:
+What that looks like in this repo:
 
-- **Acceptance criteria before tests** — [docs/traceability.md](docs/traceability.md) maps each user story to its risk, manual check, and automated test by name.
-- **Risk-based coverage** — the import parser (highest risk: silent data loss) gets 20+ unit tests; UI flows get 14 Playwright tests; visual polish gets exploratory charters, not automation.
-- **Deterministic by design** — the parser is a pure function; the report builder takes `now` as a parameter. Same input, same output, no flaky tests.
-- **Support is a QA input** — [docs/support-reproduction.md](docs/support-reproduction.md) walks a customer ticket from report to root cause to the exact regression tests it produced. The broken fixture *is* the customer's file.
-- **Release discipline** — [docs/release-checklist.md](docs/release-checklist.md) defines what must pass before shipping.
+- **Acceptance criteria come before tests.** [docs/traceability.md](docs/traceability.md) maps every user story to its risk, its manual check, and its automated test by name.
+- **Coverage follows risk.** The import parser is where a customer can silently lose data, so it gets the deepest unit coverage. UI workflows get Playwright tests. Visual polish gets manual charters instead of automation.
+- **Tests are deterministic on purpose.** The parser is a pure function and the report builder takes the current time as a parameter. Same input, same output, no flaky tests.
+- **Support tickets become tests.** A customer's broken file gets minimized into a fixture, committed, and pinned by tests so the behavior can never quietly change again.
+- **Releases are a decision, not a checkmark.** [docs/release-checklist.md](docs/release-checklist.md) lists what has to pass and ends with a human sign-off.
 
-## AI-enabled QA approach
+## How AI fits in
 
-Detailed in [docs/ai-enabled-qa.md](docs/ai-enabled-qa.md) — the strongest statement of approach in this repo. The short version:
+Full write-up in [docs/ai-enabled-qa.md](docs/ai-enabled-qa.md). The short version:
 
-| AI accelerates | Humans own |
+| AI speeds up | A human owns |
 |---|---|
-| Edge-case brainstorming, fixture variation | Which fixtures get committed and what "correct" means |
-| Test skeleton drafts | Selectors, assertions, expected outcomes |
-| Log/import-error summarization | Root-cause confirmation before filing a bug |
-| Customer reply and bug report drafts | Review of tone and accuracy before sending |
-| Coverage-gap suggestions after a bug | What becomes permanent regression coverage |
+| Brainstorming edge cases and test data | Which fixtures get committed and what "correct" means |
+| Drafting test skeletons | Selectors, assertions, and expected outcomes |
+| Summarizing logs and import errors | Confirming root cause before filing a bug |
+| Drafting customer replies and bug reports | Reviewing tone and accuracy before anything is sent |
+| Suggesting coverage gaps after a bug | Deciding what becomes permanent regression coverage |
 
-The guardrail is visible **in the product**: the diagnostics panel drafts a customer reply from import results, but the copy button is disabled until a human checks "I reviewed this draft" — and there is a Playwright test asserting that guardrail works.
+The guardrail isn't just in the docs. In the app, the AI-drafted customer reply is locked until a human checks a review box, and a Playwright test makes sure that lock works. The repo itself was built with an AI coding agent under the same rules, documented in [CLAUDE.md](CLAUDE.md).
 
-This repo was itself built AI-assisted (agentic coding with a review gate on every change) — see [CLAUDE.md](CLAUDE.md) for the conventions that keep an AI agent productive and safe in this codebase.
-
-## How to run
+## Run it locally
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
 ```
 
-No backend, no API keys, no configuration — data persists to localStorage, and **Reset demo data** (top right) restores the seed. Every push to `main` republishes the [live demo](https://ajcondondev.github.io/fieldasset-qa-lab/) via `.github/workflows/deploy.yml`.
+No backend and no API keys. Data persists to localStorage, and the **Reset demo data** button restores the seed.
 
-## How to run tests
+## Run the tests
 
 ```bash
-npm run test:unit  # Vitest — 26 tests on the parser, report builder, fixtures
-npm run test:e2e   # Playwright — 14 regression tests (first run: npx playwright install chromium)
+npm run test:unit  # Vitest: 26 tests on the parser, report builder, and fixtures
+npm run test:e2e   # Playwright: 14 workflow tests (first run: npx playwright install chromium)
 npm test           # both
 ```
 
-CI runs both suites on every push (`.github/workflows/ci.yml`).
+CI runs the build and both suites on every push. Every push to `main` also republishes the live demo.
 
-## Documentation map
+## The docs
 
-| Doc | What it shows |
+| Doc | What it covers |
 |---|---|
-| [docs/qa-strategy.md](docs/qa-strategy.md) | Risks, test pyramid, manual charters, automation policy |
-| [docs/ai-enabled-qa.md](docs/ai-enabled-qa.md) | Building QA from the ground up in an AI-enabled world |
-| [docs/support-reproduction.md](docs/support-reproduction.md) | Customer ticket → root cause → regression tests |
-| [docs/bug-report-example.md](docs/bug-report-example.md) | Engineering handoff quality |
-| [docs/release-checklist.md](docs/release-checklist.md) | What must pass before shipping |
-| [docs/traceability.md](docs/traceability.md) | Stories → risks → manual checks → automated tests |
+| [docs/qa-strategy.md](docs/qa-strategy.md) | Product risks, test pyramid, manual charters, automation rules |
+| [docs/ai-enabled-qa.md](docs/ai-enabled-qa.md) | The full AI-enabled QA operating model and its guardrails |
+| [docs/support-reproduction.md](docs/support-reproduction.md) | A customer ticket followed to root cause and regression tests |
+| [docs/bug-report-example.md](docs/bug-report-example.md) | What my engineering handoff looks like |
+| [docs/release-checklist.md](docs/release-checklist.md) | What has to pass before shipping |
+| [docs/traceability.md](docs/traceability.md) | Every story mapped to its risk and its tests |
 
-## What this demonstrates (QA + Support Engineer)
+## What this demonstrates
 
-- **QA ownership from day one** — acceptance criteria and a risk map came before the tests; [docs/traceability.md](docs/traceability.md) proves coverage was built systematically, and honestly lists the gaps.
-- **Support engineering instincts** — row-level diagnostics with plain-language reasons, suggested next actions, and a reviewed customer reply. The support→fixture→regression loop is walked end-to-end in [docs/support-reproduction.md](docs/support-reproduction.md).
-- **Regression thinking** — a customer's broken file became a committed fixture whose exact outcome (7 rows → 2 imported, 5 rejected, 1 warning) is pinned by both unit and e2e tests. It can never drift silently.
-- **Deterministic automation** — pure parser, injected clock, committed fixtures, role-based locators, zero sleeps. 26 unit + 14 e2e tests, all green in CI.
-- **AI with guardrails, practiced not preached** — the app's AI-assisted reply drafter is gated behind human review (and that gate is itself regression-tested); the repo was built AI-assisted under the same rules it documents.
-- **Clear communication** — bug report, release checklist, and support docs written for the people who actually read them: engineers, support, and customers.
+For a QA + Support Engineer role, this project shows that I can:
+
+- Own quality from day one: acceptance criteria and a risk map first, tests second, with the gaps tracked honestly.
+- Think like support: plain-language errors, suggested next actions, and a reply the customer can actually act on.
+- Turn a customer's broken file into permanent regression coverage.
+- Build automation that stays reliable: pure functions, committed fixtures, role-based locators, no sleeps.
+- Use AI heavily and safely, with review gates that are themselves tested.
+- Communicate clearly in bug reports, checklists, and docs written for the people who read them.
 
 ## What I would add next
 
-- Import preview step (validate → review → commit) so customers can fix rows before anything imports.
-- Downloadable "rejected rows" CSV so customers can fix and re-import only failures.
-- Real LLM behind the reply drafter (BYO key), keeping the identical review gate.
-- Playwright visual snapshots for report rendering; axe-core accessibility checks in CI.
-- Contract tests on the exported JSON report schema.
+- An import preview step, so customers can review and fix rows before anything is committed.
+- A downloadable "rejected rows" CSV so customers can fix and re-import only the failures.
+- A real LLM behind the reply drafter (bring your own key), keeping the same review gate.
+- Accessibility checks and visual snapshots in CI, plus clipboard and download content assertions.
