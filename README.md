@@ -1,5 +1,9 @@
 # FieldAsset QA Lab
 
+[![CI](https://github.com/ajcondondev/fieldasset-qa-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/ajcondondev/fieldasset-qa-lab/actions/workflows/ci.yml)
+
+**Live demo: [ajcondondev.github.io/fieldasset-qa-lab](https://ajcondondev.github.io/fieldasset-qa-lab/)** — nothing to install; follow the [2-minute walkthrough](#demo-walkthrough-2-minutes).
+
 A small, working demo of **how I would build QA from the ground up in an AI-enabled world** — wrapped around a realistic field-data workflow: messy CSV from a legacy panel schedule goes in, structured electrical asset records with row-level diagnostics and a report come out.
 
 > **Point of view:** I use AI for speed — test design, edge-case discovery, fixture variation, log summarization, and documentation drafts. But acceptance criteria, deterministic regression tests, committed fixtures, and human release judgment stay the source of truth. AI drafts; humans decide.
@@ -72,7 +76,7 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-No backend, no API keys, no configuration — data persists to localStorage, and **Reset demo data** (top right) restores the seed. Pushing to GitHub auto-publishes a live demo via `.github/workflows/deploy.yml` (enable **Settings → Pages → Source: GitHub Actions** once).
+No backend, no API keys, no configuration — data persists to localStorage, and **Reset demo data** (top right) restores the seed. Every push to `main` republishes the [live demo](https://ajcondondev.github.io/fieldasset-qa-lab/) via `.github/workflows/deploy.yml`.
 
 ## How to run tests
 
