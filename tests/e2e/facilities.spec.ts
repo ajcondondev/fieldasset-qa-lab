@@ -40,6 +40,7 @@ test("adds an electrical asset to a facility", async ({ page }) => {
     .click();
   await expect(page.getByRole("heading", { name: "Northside Medical Office" })).toBeVisible();
 
+  await page.getByRole("button", { name: "Add an asset manually" }).click();
   const form = page.getByRole("form", { name: "Add asset" });
   await form.getByLabel("Asset name *").fill("Panel E");
   await form.getByLabel("Type *").selectOption("panel");

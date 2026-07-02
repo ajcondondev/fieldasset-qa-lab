@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+﻿import { expect, test } from "@playwright/test";
 
 test("generates a report that highlights critical assets", async ({ page }) => {
   await page.goto("/#/facility/fac-northside");
@@ -15,7 +15,7 @@ test("generates a report that highlights critical assets", async ({ page }) => {
 test("report reflects newly imported assets", async ({ page }) => {
   await page.goto("/#/facility/fac-granite");
   await page.getByRole("button", { name: "critical-assets.csv" }).click();
-  await page.getByRole("button", { name: "Validate and import" }).click();
+  await page.getByRole("button", { name: "Check and import" }).click();
   await expect(page.getByTestId("import-summary")).toContainText("3 imported");
 
   await page.getByRole("button", { name: "Generate report" }).click();

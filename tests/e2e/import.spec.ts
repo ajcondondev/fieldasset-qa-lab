@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+﻿import { expect, test } from "@playwright/test";
 
 const HEADER = "assetName,type,location,status,parentAssetName,lastInspectionDate,notes";
 
@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 
 test("imports valid CSV rows and displays the imported assets", async ({ page }) => {
   await page.getByRole("button", { name: "valid-assets.csv" }).click();
-  await page.getByRole("button", { name: "Validate and import" }).click();
+  await page.getByRole("button", { name: "Check and import" }).click();
 
   await expect(page.getByTestId("import-summary")).toContainText("5 rows");
   await expect(page.getByTestId("import-summary")).toContainText("5 imported");
@@ -20,7 +20,7 @@ test("imports valid CSV rows and displays the imported assets", async ({ page })
 
 test("shows row-level diagnostics for a broken CSV import", async ({ page }) => {
   await page.getByRole("button", { name: "broken-panel-schedule.csv" }).click();
-  await page.getByRole("button", { name: "Validate and import" }).click();
+  await page.getByRole("button", { name: "Check and import" }).click();
 
   await expect(page.getByTestId("import-summary")).toContainText("7 rows");
   await expect(page.getByTestId("import-summary")).toContainText("2 imported");
@@ -47,7 +47,7 @@ test("normalizes whitespace and asset type casing during import", async ({ page 
   await page
     .getByLabel("CSV input")
     .fill(`${HEADER}\n  Panel Z  ,  PANEL  ,  Electrical room 4  ,  OK  ,,2025-06-01,`);
-  await page.getByRole("button", { name: "Validate and import" }).click();
+  await page.getByRole("button", { name: "Check and import" }).click();
 
   await expect(page.getByTestId("import-summary")).toContainText("1 imported");
   const row = page.getByRole("row", { name: /Panel Z/ });
@@ -58,7 +58,7 @@ test("normalizes whitespace and asset type casing during import", async ({ page 
 test("rejects duplicate asset names within the same facility", async ({ page }) => {
   // "Main Meter" is seeded in Granite Street Warehouse.
   await page.getByLabel("CSV input").fill(`${HEADER}\nMain Meter,meter,Loading dock wall,ok,,2025-06-01,`);
-  await page.getByRole("button", { name: "Validate and import" }).click();
+  await page.getByRole("button", { name: "Check and import" }).click();
 
   await expect(page.getByTestId("import-summary")).toContainText("0 imported");
   await expect(page.getByTestId("import-summary")).toContainText("1 rejected");
@@ -71,7 +71,7 @@ test("rejects duplicate asset names within the same facility", async ({ page }) 
 
 test("AI-assisted support draft requires human review before it can be copied", async ({ page }) => {
   await page.getByRole("button", { name: "broken-panel-schedule.csv" }).click();
-  await page.getByRole("button", { name: "Validate and import" }).click();
+  await page.getByRole("button", { name: "Check and import" }).click();
   await page.getByRole("button", { name: "Draft customer reply" }).click();
 
   const draft = page.getByTestId("support-draft");
@@ -85,9 +85,23 @@ test("AI-assisted support draft requires human review before it can be copied", 
   await expect(copyButton).toBeEnabled();
 });
 
+test("guided demo preloads the messy sample and explains the result in plain words", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Try the demo" }).click();
+
+  // Step 1 happened automatically: the messy sample is loaded and the hint points at the button.
+  await expect(page.getByLabel("CSV input")).toHaveValue(/Generator Tie,xfmr/);
+  await expect(page.getByText("Step 1 is done for you.")).toBeVisible();
+
+  await page.getByRole("button", { name: "Check and import" }).click();
+  await expect(page.getByTestId("import-summary")).toContainText("2 imported");
+  await expect(page.getByTestId("demo-explainer")).toContainText("What just happened?");
+  await expect(page.getByTestId("demo-explainer")).toContainText("added to the asset list above");
+});
+
 test("rejects a file with a missing required header column", async ({ page }) => {
   await page.getByLabel("CSV input").fill("assetName,location\nPanel Q,Room 1");
-  await page.getByRole("button", { name: "Validate and import" }).click();
+  await page.getByRole("button", { name: "Check and import" }).click();
 
   await expect(page.getByTestId("import-summary")).toContainText("0 imported");
   await expect(page.getByTestId("import-errors")).toContainText("Missing required column(s): type, status");

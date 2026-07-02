@@ -1,4 +1,5 @@
-import { Link, useParams } from "react-router-dom";
+import { useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useStore } from "../app/store";
 import { StatusBadge } from "../components/StatusBadge";
 import { AssetTable } from "../components/AssetTable";
@@ -9,8 +10,11 @@ import { ReportPreview } from "../components/ReportPreview";
 
 export function FacilityDetailPage() {
   const { facilityId } = useParams();
+  const [searchParams] = useSearchParams();
+  const demoMode = searchParams.get("demo") === "1";
   const { facilities, assets } = useStore();
   const facility = facilities.find((f) => f.id === facilityId);
+  const [showAddAsset, setShowAddAsset] = useState(false);
 
   if (!facility) {
     return (
@@ -49,10 +53,16 @@ export function FacilityDetailPage() {
 
       <h2>Assets</h2>
       <AssetTable assets={facilityAssets} />
-      <AddAssetForm facilityId={facility.id} />
+      {showAddAsset ? (
+        <AddAssetForm facilityId={facility.id} />
+      ) : (
+        <button type="button" className="btn btn-secondary" onClick={() => setShowAddAsset(true)}>
+          Add an asset manually
+        </button>
+      )}
 
       <h2>Import</h2>
-      <CsvImportPanel facilityId={facility.id} />
+      <CsvImportPanel facilityId={facility.id} demoMode={demoMode} />
       <DiagnosticsPanel facilityId={facility.id} />
 
       <h2>Report</h2>

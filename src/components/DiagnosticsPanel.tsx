@@ -27,6 +27,7 @@ export function DiagnosticsPanel({ facilityId }: { facilityId: string }) {
   return (
     <div className="card" data-testid="diagnostics">
       <h3>Support diagnostics</h3>
+      <p className="muted small">This is what our support team sees when helping with an import.</p>
       <dl className="diag-grid">
         <div>
           <dt>Source</dt>

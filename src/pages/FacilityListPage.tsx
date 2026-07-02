@@ -48,12 +48,12 @@ export function FacilityListPage() {
 
       <aside className="tour-banner" data-testid="demo-tour">
         <div>
-          <strong>Reviewing this demo?</strong> Open a facility, load the{" "}
-          <code>broken-panel-schedule.csv</code> sample, and click <em>Validate and import</em> — you'll
-          see row-level diagnostics, the support panel, and the AI-reply review gate in under two minutes.
+          <strong>First time here?</strong> One click loads a messy sample spreadsheet so you can watch
+          the app sort it out and explain every problem in plain words. It takes about a minute, and
+          nothing can break.
         </div>
-        <Link className="btn btn-secondary" to="/facility/fac-granite">
-          Start the 2-minute tour
+        <Link className="btn btn-primary" to="/facility/fac-granite?demo=1">
+          Try the demo
         </Link>
       </aside>
 
