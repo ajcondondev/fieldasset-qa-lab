@@ -12,7 +12,7 @@ flowchart LR
     B -->|good rows| C["Structured asset records"]
     B -->|bad rows| D["Row-level diagnostics<br/>(row, field, plain reason)"]
     C --> E["Facility report<br/>(critical assets highlighted)"]
-    D --> F["Support workflow<br/>(next actions, reviewed AI reply)"]
+    D --> F["Support workflow<br/>(next actions, human-reviewed reply draft)"]
     D --> G["Committed fixtures<br/>= regression tests"]
 ```
 
@@ -31,7 +31,7 @@ This is a portfolio project. It is not affiliated with any company, and all the 
 1. **Facility list.** Seeded facilities with status and critical-asset counts.
 2. **Facility detail.** Asset table with inline status editing.
 3. **CSV import.** Paste rows copied from a spreadsheet or an old PDF. Valid rows import. Invalid rows are listed with the row number, the field, and a reason written in plain language.
-4. **Support diagnostics.** The last import's source, counts, suggested next actions, and an AI-assisted customer reply that cannot be copied until a human marks it reviewed.
+4. **Support diagnostics.** The last import's source, counts, suggested next actions, and a drafted customer reply that cannot be copied until a human marks it reviewed. (The drafter is a deterministic template sitting where an LLM would go; swapping in a real model is listed under future work.)
 5. **Report preview.** Critical and needs-review assets called out, missing inspection dates flagged, copy as text or download as JSON. Archived facilities never produce a report.
 
 Three CSV files in `src/test-fixtures/` drive everything: a clean file, a broken customer-like file, and a critical-assets file. The same files power the sample buttons in the UI, the unit tests, and the Playwright tests. One source of truth for what "correct" means.
@@ -39,10 +39,10 @@ Three CSV files in `src/test-fixtures/` drive everything: a clean file, a broken
 ## Demo walkthrough (2 minutes)
 
 1. Open the [live demo](https://ajcondondev.github.io/fieldasset-qa-lab/) (or run it locally, below).
-2. Open **Granite Street Warehouse** and scroll to **Import assets from CSV**.
-3. Click **Load sample file: broken-panel-schedule.csv**, then **Validate and import**.
-4. Read the result: `7 rows, 2 imported, 5 rejected, 1 warning`. The rejected list shows a missing name, an unknown type (`xfmr`), a missing location, a typo (`criticl`, with a "did you mean critical?" hint), and a duplicated row. Note that the row with extra whitespace and capital letters was cleaned up and imported, and the US-format date imported with a warning instead of failing.
-5. In **Support diagnostics**, click **Draft customer reply**. Try to copy it. You can't until you check "I reviewed this draft". That checkbox is the AI guardrail, and it has its own regression test.
+2. Open **Granite Street Warehouse** and scroll to **Import assets from a spreadsheet**.
+3. Click the **Messy customer file (broken-panel-schedule.csv)** sample button, then **Check and import**.
+4. Read the result: 7 rows, 2 imported, 5 rejected, 1 warning. The rejected list shows a missing name, an unknown type (`xfmr`), a missing location, a typo (`criticl`, with a "did you mean critical?" hint), and a duplicated row. Note that the row with extra whitespace and capital letters was cleaned up and imported, and the US-format date imported with a warning instead of failing.
+5. In **Support diagnostics**, click **Draft customer reply**. Try to copy it. You can't until you check "I reviewed this draft for accuracy and tone". That checkbox is the review gate, and it has its own regression test.
 6. Click **Generate report**. The critical switchgear you just imported is highlighted.
 
 The broken file in step 3 is also the customer ticket in [docs/support-reproduction.md](docs/support-reproduction.md), which follows it from support report to root cause to the regression tests that now pin its behavior.
@@ -77,7 +77,7 @@ Full write-up in [docs/ai-enabled-qa.md](docs/ai-enabled-qa.md). The short versi
 | Drafting customer replies and bug reports | Reviewing tone and accuracy before anything is sent |
 | Suggesting coverage gaps after a bug | Deciding what becomes permanent regression coverage |
 
-The guardrail isn't just in the docs. In the app, the AI-drafted customer reply is locked until a human checks a review box, and a Playwright test makes sure that lock works. The repo itself was built with an AI coding agent under the same rules, documented in [CLAUDE.md](CLAUDE.md).
+The guardrail isn't just in the docs. In the app, the drafted customer reply is locked until a human checks a review box, and a Playwright test makes sure that lock works. The repo itself was built with an AI coding agent under the same rules, documented in [CLAUDE.md](CLAUDE.md).
 
 ## Run it locally
 
@@ -92,7 +92,7 @@ No backend and no API keys. Data persists to localStorage, and the **Reset demo 
 
 ```bash
 npm run test:unit  # Vitest: 26 tests on the parser, report builder, and fixtures
-npm run test:e2e   # Playwright: 14 workflow tests (first run: npx playwright install chromium)
+npm run test:e2e   # Playwright: 15 workflow tests (first run: npx playwright install chromium)
 npm test           # both
 ```
 
